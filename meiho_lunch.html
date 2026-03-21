@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美和科技大學 中餐團購系統</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap');
+
+  :root {
+    --primary: #1a4a2e;
+    --primary-light: #2d7a4f;
+    --primary-pale: #e8f5ee;
+    --accent: #e8a020;
+    --accent-light: #fef3e2;
+    --danger: #c0392b;
+    --text: #1c2b1e;
+    --text-muted: #6b8070;
+    --border: #d0e4d8;
+    --white: #ffffff;
+    --bg: #f4f9f6;
+    --shadow: 0 4px 20px rgba(26,74,46,0.12);
+    --shadow-sm: 0 2px 8px rgba(26,74,46,0.08);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, #0f3320 100%);
+    color: white;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .header-logo { display:flex; align-items:center; gap:12px; }
+  .header-logo .logo-icon {
+    width:44px; height:44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:900; color:white;
+    flex-shrink:0;
+  }
+  .header-title h1 { font-size:1.15rem; font-weight:700; letter-spacing:0.02em; }
+  .header-title p { font-size:0.72rem; opacity:0.75; margin-top:2px; }
+  .cart-badge-btn {
+    background: var(--accent);
+    border: none; cursor: pointer;
+    border-radius: var(--radius);
+    padding: 10px 18px;
+    color: white;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 700;
+    display: flex; align-items: center; gap:8px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .cart-badge-btn:hover { background:#c8871a; transform:translateY(-1px); }
+  .cart-count {
+    background: white;
+    color: var(--accent);
+    border-radius: 50%;
+    width:22px; height:22px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.78rem; font-weight:900;
+  }
+
+  /* ── STORE TABS ── */
+  .store-tabs {
+    background: white;
+    border-bottom: 2px solid var(--border);
+    position: sticky;
+    top: 72px;
+    z-index: 99;
+    box-shadow: var(--shadow-sm);
+  }
+  .store-tabs-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 0;
+  }
+  .store-tabs-inner::-webkit-scrollbar { display:none; }
+  .tab-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 14px 20px;
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex; align-items:center; gap:6px;
+  }
+  .tab-btn:hover { color: var(--primary); background: var(--primary-pale); }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 20px;
+    align-items: start;
+  }
+  @media(max-width:768px){
+    .main { grid-template-columns:1fr; }
+    .cart-panel { display:none; }
+  }
+
+  /* ── MENU SECTION ── */
+  .menu-section { display:none; }
+  .menu-section.active { display:block; }
+
+  .store-hero {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    color: white;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .store-hero .hero-icon { font-size: 2.4rem; }
+  .store-hero h2 { font-size: 1.3rem; font-weight: 800; }
+  .store-hero p { font-size: 0.82rem; opacity:0.8; margin-top:4px; }
+
+  .category-block { margin-bottom: 22px; }
+  .category-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--primary);
+    background: var(--primary-pale);
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--primary);
+    margin-bottom: 10px;
+    display: flex; align-items:center; gap:8px;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .menu-item {
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+  }
+  .menu-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); transform:translateY(-1px); }
+  .menu-item.selected { border-color: var(--primary); background: var(--primary-pale); }
+  .menu-item .item-name { font-size:0.88rem; font-weight:600; color:var(--text); line-height:1.4; }
+  .menu-item .item-desc { font-size:0.74rem; color:var(--text-muted); margin-top:3px; }
+  .menu-item .item-price {
+    font-size:1rem; font-weight:800; color:var(--primary);
+    margin-top:8px; display:flex; align-items:center; gap:6px;
+  }
+  .menu-item .item-price .price-small { font-size:0.78rem; color:var(--text-muted); font-weight:400; }
+
+  /* sub-options */
+  .item-options {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .menu-item.selected .item-options { display:block; }
+  .item-options label { font-size:0.76rem; color:var(--text-muted); display:block; margin-bottom:4px; }
+  .item-options select, .item-options input[type=number] {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    margin-bottom: 8px;
+    color: var(--text);
+    background: white;
+  }
+  .item-options select:focus, .item-options input:focus { outline:none; border-color:var(--primary); }
+  .add-btn {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .add-btn:hover { background: var(--primary-light); }
+
+  /* ── CART PANEL ── */
+  .cart-panel {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    padding: 18px;
+    position: sticky;
+    top: 136px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+  .cart-panel h3 {
+    font-size:1rem; font-weight:800; color:var(--primary);
+    margin-bottom:14px; display:flex; align-items:center; gap:8px;
+    padding-bottom:10px; border-bottom:2px solid var(--border);
+  }
+
+  /* user info form */
+  .user-form { margin-bottom: 16px; }
+  .user-form .form-row { margin-bottom: 10px; }
+  .user-form label { font-size:0.76rem; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px; }
+  .user-form input, .user-form select {
+    width:100%;
+    border:1.5px solid var(--border);
+    border-radius:6px;
+    padding:8px 10px;
+    font-size:0.84rem;
+    font-family:inherit;
+    color:var(--text);
+  }
+  .user-form input:focus, .user-form select:focus { outline:none; border-color:var(--primary); }
+
+  .cart-items { min-height: 60px; }
+  .empty-msg { text-align:center; color:var(--text-muted); font-size:0.84rem; padding:20px 0; }
+  .cart-item {
+    display:flex; align-items:flex-start; gap:8px;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .cart-item:last-child { border-bottom:none; }
+  .cart-item-info { flex:1; }
+  .cart-item-name { font-size:0.82rem; font-weight:600; }
+  .cart-item-sub { font-size:0.72rem; color:var(--text-muted); }
+  .cart-item-price { font-size:0.88rem; font-weight:700; color:var(--primary); white-space:nowrap; }
+  .cart-item-del {
+    background:none; border:none; cursor:pointer;
+    color:#ccc; font-size:1rem;
+    padding:0 2px; line-height:1;
+    transition:color 0.15s;
+  }
+  .cart-item-del:hover { color:var(--danger); }
+
+  .cart-total {
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 12px 0 0;
+    font-size:1rem; font-weight:800;
+    border-top: 2px solid var(--primary);
+    margin-top: 6px;
+    color: var(--primary);
+  }
+
+  .submit-btn {
+    width:100%; margin-top:14px;
+    background: var(--primary);
+    color:white; border:none;
+    border-radius: var(--radius-sm);
+    padding:13px;
+    font-size:0.96rem; font-weight:800;
+    font-family:inherit;
+    cursor:pointer;
+    transition:all 0.2s;
+    letter-spacing:0.03em;
+  }
+  .submit-btn:hover { background: var(--primary-light); transform:translateY(-1px); box-shadow:var(--shadow); }
+  .submit-btn:disabled { background:#aaa; transform:none; cursor:not-allowed; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.55); z-index:200;
+    align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:white; border-radius:var(--radius);
+    max-width:500px; width:100%;
+    padding:28px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:90vh; overflow-y:auto;
+  }
+  .modal h2 { font-size:1.2rem; font-weight:800; color:var(--primary); margin-bottom:6px; }
+  .modal .modal-sub { font-size:0.82rem; color:var(--text-muted); margin-bottom:16px; }
+  .order-summary { background:var(--bg); border-radius:var(--radius-sm); padding:14px; margin-bottom:16px; }
+  .order-summary .row { display:flex; justify-content:space-between; font-size:0.85rem; padding:3px 0; }
+  .order-summary .row.total { font-weight:800; font-size:1rem; color:var(--primary); border-top:1px solid var(--border); margin-top:6px; padding-top:8px; }
+  .modal-btns { display:flex; gap:10px; margin-top:6px; }
+  .modal-btns button {
+    flex:1; padding:12px;
+    border-radius:var(--radius-sm);
+    font-family:inherit; font-size:0.92rem; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+    border:none;
+  }
+  .btn-cancel { background:var(--bg); color:var(--text-muted); border:2px solid var(--border) !important; }
+  .btn-confirm { background:var(--primary); color:white; }
+  .btn-confirm:hover { background:var(--primary-light); }
+
+  /* ── SUCCESS ── */
+  .success-banner {
+    display:none;
+    position:fixed; top:80px; left:50%; transform:translateX(-50%);
+    background:var(--primary); color:white;
+    border-radius:var(--radius); padding:14px 28px;
+    font-size:0.95rem; font-weight:700;
+    z-index:300; box-shadow:var(--shadow);
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from{opacity:0;top:60px} to{opacity:1;top:80px} }
+
+  /* ── MOBILE CART ── */
+  .mobile-cart-btn {
+    display:none;
+    position:fixed; bottom:20px; right:20px;
+    background:var(--primary); color:white;
+    border:none; border-radius:50px;
+    padding:14px 22px;
+    font-size:0.9rem; font-weight:700;
+    font-family:inherit; cursor:pointer;
+    box-shadow:0 6px 20px rgba(26,74,46,0.35);
+    z-index:150; align-items:center; gap:8px;
+  }
+  @media(max-width:768px){ .mobile-cart-btn{display:flex;} }
+
+  .mobile-cart-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.5); z-index:160;
+  }
+  .mobile-cart-overlay.open { display:block; }
+  .mobile-cart-panel {
+    position:fixed; bottom:0; left:0; right:0;
+    background:white; border-radius:var(--radius) var(--radius) 0 0;
+    padding:20px; z-index:161;
+    max-height:85vh; overflow-y:auto;
+    transform:translateY(100%);
+    transition:transform 0.3s ease;
+  }
+  .mobile-cart-overlay.open .mobile-cart-panel { transform:translateY(0); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <div class="logo-icon">美</div>
+      <div class="header-title">
+        <h1>美和科技大學 中餐團購系統</h1>
+        <p>Meiho University Lunch Group Order System</p>
+      </div>
+    </div>
+    <button class="cart-badge-btn" onclick="openCart()">
+      🛒 購物車 <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<!-- STORE TABS -->
+<div class="store-tabs">
+  <div class="store-tabs-inner">
+    <button class="tab-btn active" onclick="switchStore('luyuan')" id="tab-luyuan">🌿 綠苑麵食館</button>
+    <button class="tab-btn" onclick="switchStore('yipin')" id="tab-yipin">🍜 壹品麵食館</button>
+    <button class="tab-btn" onclick="switchStore('dafang')" id="tab-dafang">🥩 大方牛肉麵店</button>
+    <button class="tab-btn" onclick="switchStore('hongye')" id="tab-hongye">🌺 紅葉麵食館</button>
+    <button class="tab-btn" onclick="switchStore('xiyuan')" id="tab-xiyuan">🍳 惜緣亭</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ==================== 綠苑麵食館 ==================== -->
+  <div class="menu-section active" id="store-luyuan">
+    <div class="store-hero">
+      <div class="hero-icon">🌿</div>
+      <div>
+        <h2>綠苑麵食館</h2>
+        <p>麵類・飯類・湯類・餃類・招牌小菜</p>
+      </div>
+    </div>
+
+    <!-- 麵類 -->
+    <div class="category-block">
+      <div class="category-title">🍜 麵類</div>
+      <div class="menu-grid" id="luyuan-noodles"></div>
+    </div>
+    <!-- 飯類 -->
+    <div class="category-block">
+      <div class="category-title">🍚 飯類</div>
+      <div class="menu-grid" id="luyuan-rice"></div>
+    </div>
+    <!-- 湯類 -->
+    <div class="category-block">
+      <div class="category-title">🍲 湯類</div>
+      <div class="menu-grid" id="luyuan-soup"></div>
+    </div>
+    <!-- 餃類 -->
+    <div class="category-block">
+      <div class="category-title">🥟 餃類</div>
+      <div class="menu-grid" id="luyuan-dumpling"></div>
+    </div>
+    <!-- 招牌小菜 -->
+    <div class="category-block">
+      <div class="category-title">🥬 招牌小菜類</div>
+      <div class="menu-grid" id="luyuan-side"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 壹品麵食館 ==================== -->
+  <div class="menu-section" id="store-yipin">
+    <div class="store-hero">
+      <div class="hero-icon">🍜</div>
+      <div>
+        <h2>壹品麵食館</h2>
+        <p>麵類・飯類・湯品・小菜｜麵條可選：白麵、細麵、拉麵、板條、米粉</p>
+      </div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍜 麵類（湯/乾）</div>
+      <div class="menu-grid" id="yipin-noodles"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍚 飯類</div>
+      <div class="menu-grid" id="yipin-rice"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍲 湯品・小菜</div>
+      <div class="menu-grid" id="yipin-side"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🥟 水餃・其他</div>
+      <div class="menu-grid" id="yipin-dumpling"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🦐 鮮蝦系列（附麵條可選：白麵、細麵、拉麵）</div>
+      <div class="menu-grid" id="yipin-shrimp"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 大方牛肉麵店 ==================== -->
+  <div class="menu-section" id="store-dafang">
+    <div class="store-hero">
+      <div class="hero-icon">🥩</div>
+      <div>
+        <h2>大方牛肉麵店</h2>
+        <p>麵類・飯類・小菜湯品｜麵條可選：寬、中、細、拉</p>
+      </div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍜 麵類（大/小）</div>
+      <div class="menu-grid" id="dafang-noodles"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍚 飯類（大/小）</div>
+      <div class="menu-grid" id="dafang-rice"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍲 湯品・小菜</div>
+      <div class="menu-grid" id="dafang-side"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🥟 水餃</div>
+      <div class="menu-grid" id="dafang-dumpling"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 紅葉麵食館 ==================== -->
+  <div class="menu-section" id="store-hongye">
+    <div class="store-hero">
+      <div class="hero-icon">🌺</div>
+      <div>
+        <h2>紅葉麵食館</h2>
+        <p>麵類・飯類・小菜湯類</p>
+      </div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍜 麵類（大/小）</div>
+      <div class="menu-grid" id="hongye-noodles"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍚 飯類（大/小）</div>
+      <div class="menu-grid" id="hongye-rice"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍲 小菜・湯類</div>
+      <div class="menu-grid" id="hongye-side"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🥟 水餃</div>
+      <div class="menu-grid" id="hongye-dumpling"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 惜緣亭 ==================== -->
+  <div class="menu-section" id="store-xiyuan">
+    <div class="store-hero">
+      <div class="hero-icon">🍳</div>
+      <div>
+        <h2>惜緣亭</h2>
+        <p>招牌米食・特色麵食・附餐湯品</p>
+      </div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍳 招牌米食</div>
+      <div class="menu-grid" id="xiyuan-rice"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍝 特色麵食</div>
+      <div class="menu-grid" id="xiyuan-noodles"></div>
+    </div>
+    <div class="category-block">
+      <div class="category-title">🍲 附餐・湯品</div>
+      <div class="menu-grid" id="xiyuan-side"></div>
+    </div>
+  </div>
+
+  <!-- ==================== CART PANEL ==================== -->
+  <div class="cart-panel" id="cartPanel">
+    <h3>🛒 我的訂單</h3>
+
+    <!-- User info -->
+    <div class="user-form">
+      <div class="form-row">
+        <label>姓名 *</label>
+        <input type="text" id="userName" placeholder="請輸入姓名">
+      </div>
+      <div class="form-row">
+        <label>部門／班級 *</label>
+        <input type="text" id="userDept" placeholder="例：資管系三年級">
+      </div>
+      <div class="form-row">
+        <label>聯絡電話</label>
+        <input type="tel" id="userPhone" placeholder="選填">
+      </div>
+      <div class="form-row">
+        <label>備註</label>
+        <input type="text" id="userNote" placeholder="選填">
+      </div>
+    </div>
+
+    <div class="cart-items" id="cartItems">
+      <div class="empty-msg">🛍️ 尚未加入任何品項</div>
+    </div>
+
+    <div class="cart-total" id="cartTotal" style="display:none">
+      <span>合計</span>
+      <span id="totalAmt">$0</span>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="openConfirm()" disabled>送出訂單</button>
+  </div>
+</div>
+
+<!-- MOBILE CART BTN -->
+<button class="mobile-cart-btn" onclick="openMobileCart()">
+  🛒 <span id="mCartCount">0</span> 件・$<span id="mCartAmt">0</span>
+</button>
+
+<!-- MOBILE CART OVERLAY -->
+<div class="mobile-cart-overlay" id="mobileCartOverlay" onclick="closeMobileCart()">
+  <div class="mobile-cart-panel" onclick="event.stopPropagation()">
+    <h3 style="font-size:1rem;font-weight:800;color:var(--primary);margin-bottom:12px;">🛒 我的訂單</h3>
+    <div class="user-form">
+      <div class="form-row">
+        <label>姓名 *</label>
+        <input type="text" id="m_userName" placeholder="請輸入姓名">
+      </div>
+      <div class="form-row">
+        <label>部門／班級 *</label>
+        <input type="text" id="m_userDept" placeholder="例：資管系三年級">
+      </div>
+      <div class="form-row">
+        <label>聯絡電話</label>
+        <input type="tel" id="m_userPhone" placeholder="選填">
+      </div>
+      <div class="form-row">
+        <label>備註</label>
+        <input type="text" id="m_userNote" placeholder="選填">
+      </div>
+    </div>
+    <div id="m_cartItems"><div class="empty-msg">🛍️ 尚未加入任何品項</div></div>
+    <div class="cart-total" id="m_cartTotal" style="display:none">
+      <span>合計</span><span id="m_totalAmt">$0</span>
+    </div>
+    <button class="submit-btn" id="m_submitBtn" onclick="openConfirm()" disabled style="margin-top:12px;">送出訂單</button>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h2>確認送出訂單</h2>
+    <p class="modal-sub">請確認以下訂單資訊無誤後送出</p>
+    <div class="order-summary" id="orderSummaryDiv"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeConfirm()">取消</button>
+      <button class="btn-confirm" onclick="submitOrder()">確認送出 ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS BANNER -->
+<div class="success-banner" id="successBanner">✅ 訂單已成功送出！感謝您的訂購。</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  GOOGLE APPS SCRIPT URL（部署後請更新此處）
+// ═══════════════════════════════════════════════════════
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxnA7gtv_rsqaTLqxnnFWuA4z-tHt-C7yWVk_UCfTwiQ-6FlwHk1cuhALycXMy5__JB/exec';
+
+// ═══════════════════════════════════════════════════════
+//  MENU DATA
+// ═══════════════════════════════════════════════════════
+const MENUS = {
+
+  // ── 綠苑麵食館 ──────────────────────────────────────
+  luyuan: {
+    noodles: [
+      { name:'紅燒牛三寶麵', price:170 },
+      { name:'紅燒牛筋麵', hasSizes:true, prices:{大:170,小:150} },
+      { name:'紅燒牛肉/筋麵', hasSizes:true, prices:{大:160,小:140} },
+      { name:'紅燒牛肉麵', hasSizes:true, prices:{大:140,小:120} },
+      { name:'紅燒牛肉湯麵(無肉)', price:70 },
+      { name:'清燉牛三寶麵', price:170 },
+      { name:'清燉牛筋麵', hasSizes:true, prices:{大:170,小:150} },
+      { name:'清燉牛肉/筋麵', hasSizes:true, prices:{大:170,小:150} },
+      { name:'清燉牛肉麵', hasSizes:true, prices:{大:150,小:130} },
+      { name:'清燉牛肉湯麵(無肉)', price:70 },
+      { name:'茄汁牛肉燴麵', price:130 },
+      { name:'五香牛肉拌麵', price:110 },
+      { name:'牛肉肉燥拌麵', price:90 },
+      { name:'肉骨茶麵', price:100 },
+      { name:'肉骨茶湯麵(無肉)', price:70 },
+      { name:'客家豬腳拌麵', price:100 },
+      { name:'香煎豬排拌麵', price:85 },
+      { name:'榨菜肉絲拌麵', price:65 },
+      { name:'榨菜肉絲湯麵', price:65 },
+      { name:'蔬菜素食拌麵', price:70 },
+    ],
+    rice: [
+      { name:'紅燒牛三寶飯', price:190 },
+      { name:'紅燒牛筋飯', price:170 },
+      { name:'紅燒牛肉飯', price:150 },
+      { name:'香煎鯖魚飯', price:150 },
+      { name:'茄汁牛肉燴飯', price:130 },
+      { name:'客家豬腳飯', price:120 },
+      { name:'照燒燻雞飯', price:120 },
+      { name:'蒲燒鯛魚飯', price:110 },
+      { name:'客家肉丸飯', price:110 },
+      { name:'香煎豬排飯', price:110 },
+      { name:'牛肉肉燥飯', price:40 },
+      { name:'白飯', price:10 },
+    ],
+    soup: [
+      { name:'紅燒牛三寶湯', price:150 },
+      { name:'紅燒牛筋湯', price:130 },
+      { name:'清燉牛肉湯', price:110 },
+      { name:'紅燒牛肉湯', price:100 },
+      { name:'肉骨茶湯', price:80 },
+    ],
+    dumpling: [
+      { name:'牛肉湯餃(牛肉餡)', price:120 },
+      { name:'高麗菜水餃', price:6, unit:'元/粒', minQty:10 },
+      { name:'韭菜水餃', price:6, unit:'元/粒', minQty:10 },
+      { name:'牛肉水餃', price:8, unit:'元/粒', minQty:10 },
+    ],
+    side: [
+      { name:'紅燒牛三寶', price:150 },
+      { name:'紅燒牛肉', price:110 },
+      { name:'紅燒牛筋', price:110 },
+      { name:'紅燒牛肚', price:110 },
+      { name:'紅燒牛腱', price:110 },
+      { name:'單點鯖魚', price:110 },
+      { name:'客家豬腳', price:100 },
+      { name:'單點鯛魚', price:45 },
+      { name:'單點豬排', price:45 },
+      { name:'單點照燒燻雞', price:45 },
+      { name:'客家小肉丸', price:45 },
+      { name:'其他(小菜區)', price:35 },
+    ],
+  },
+
+  // ── 壹品麵食館 ──────────────────────────────────────
+  yipin: {
+    noodles: [
+      { name:'紅燒豬肉麵', hasSizes:true, prices:{小:100,大:110}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'紅燒豬肉乾拌麵', hasSizes:true, prices:{小:100,大:110}, hasNoodleType:true },
+      { name:'紅油炒手拌麵', hasSizes:true, prices:{小:80,大:90}, hasNoodleType:true },
+      { name:'麻辣乾拌麵', hasSizes:true, prices:{小:60,大:70}, hasNoodleType:true },
+      { name:'炸醬乾拌麵', hasSizes:true, prices:{小:60,大:70}, hasNoodleType:true },
+      { name:'肉燥麵(湯/乾)', hasSizes:true, prices:{小:50,大:60}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'酸辣湯麵', hasSizes:true, prices:{小:65,大:75}, hasNoodleType:true },
+      { name:'餛飩麵(湯/乾)', hasSizes:true, prices:{小:65,大:75}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'榨菜肉絲麵(湯/乾)', hasSizes:true, prices:{小:60,大:70}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'麻醬麵(湯/乾)', hasSizes:true, prices:{小:50,大:60}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'板條(湯/乾)', hasSizes:true, prices:{小:50,大:60}, hasTaiwetDry:true },
+      { name:'米粉(湯/乾)', hasSizes:true, prices:{小:50,大:60}, hasTaiwetDry:true },
+    ],
+    rice: [
+      { name:'沙茶牛肉燴飯', hasSizes:true, prices:{小:100,大:110} },
+      { name:'沙茶豬肉燴飯', hasSizes:true, prices:{小:75,大:85} },
+      { name:'沙茶雞肉燴飯', hasSizes:true, prices:{小:75,大:85} },
+      { name:'滑蛋牛肉燴飯', hasSizes:true, prices:{小:100,大:110} },
+      { name:'滑蛋豬肉燴飯', hasSizes:true, prices:{小:75,大:85} },
+      { name:'滑蛋雞肉燴飯', hasSizes:true, prices:{小:75,大:85} },
+      { name:'酸辣湯飯', hasSizes:true, prices:{小:65,大:75} },
+    ],
+    side: [
+      { name:'貢九湯', price:35 },
+      { name:'蛋花湯', price:35 },
+      { name:'魚丸湯', price:35 },
+      { name:'酸辣湯', price:40 },
+      { name:'餛飩湯', price:45 },
+      { name:'紅燒豬肉湯', price:80 },
+      { name:'紅油炒手', price:60 },
+      { name:'皮蛋豆腐', price:40 },
+      { name:'燙青菜', price:40 },
+      { name:'小菜每盤', price:30 },
+    ],
+    dumpling: [
+      { name:'手工水餃 10粒', price:60 },
+      { name:'酸辣湯餃 8粒', price:80 },
+    ],
+    shrimp: [
+      { name:'鮮蝦餛飩麵(湯/乾)', hasSizes:true, prices:{小:80,大:90}, hasNoodleType:true, hasTaiwetDry:true },
+      { name:'鮮蝦炒手拌麵', hasSizes:true, prices:{小:100,大:110}, hasNoodleType:true },
+      { name:'紅油鮮蝦炒手', price:90 },
+      { name:'鮮蝦餛飩湯', price:60 },
+    ],
+  },
+
+  // ── 大方牛肉麵店 ──────────────────────────────────────
+  dafang: {
+    noodles: [
+      { name:'三寶麵(牛筋牛肚牛腱)', hasSizes:true, prices:{大:160,小:130}, hasNoodleType:true },
+      { name:'牛肉麵', hasSizes:true, prices:{大:150,小:120}, hasNoodleType:true },
+      { name:'牛肉乾麵', hasSizes:true, prices:{大:150,小:120}, hasNoodleType:true },
+      { name:'牛湯麵(無肉)', hasSizes:true, prices:{大:90,小:70}, hasNoodleType:true },
+      { name:'酸辣麵', hasSizes:true, prices:{大:70,小:60}, hasNoodleType:true },
+      { name:'肉絲湯麵', hasSizes:true, prices:{大:70,小:60}, hasNoodleType:true },
+      { name:'肉絲乾麵', hasSizes:true, prices:{大:70,小:60}, hasNoodleType:true },
+      { name:'牛肉炒麵', hasSizes:true, prices:{大:110,小:90}, hasNoodleType:true },
+      { name:'豬肉炒麵', hasSizes:true, prices:{大:110,小:90}, hasNoodleType:true },
+      { name:'牛肉燴麵', hasSizes:true, prices:{大:110,小:90}, hasNoodleType:true },
+      { name:'豬肉燴麵', hasSizes:true, prices:{大:110,小:90}, hasNoodleType:true },
+    ],
+    rice: [
+      { name:'牛肉炒飯', hasSizes:true, prices:{大:110,小:90} },
+      { name:'豬肉炒飯', hasSizes:true, prices:{大:110,小:90} },
+      { name:'蛋炒飯', hasSizes:true, prices:{大:70,小:60} },
+      { name:'牛肉泡飯', hasSizes:true, prices:{大:150,小:120} },
+      { name:'牛肉燴飯', hasSizes:true, prices:{大:110,小:90} },
+      { name:'豬肉燴飯', hasSizes:true, prices:{大:110,小:90} },
+    ],
+    side: [
+      { name:'牛肉湯', price:150 },
+      { name:'牛肉清湯', price:40 },
+      { name:'酸辣湯', price:40 },
+      { name:'雙蛋花湯', price:40 },
+      { name:'魚丸湯', price:40 },
+      { name:'蔥爆牛肉', price:150 },
+      { name:'麻油牛肉', price:150 },
+      { name:'沙茶牛肉', price:150 },
+      { name:'炒青菜', price:50 },
+      { name:'燙青菜', price:50 },
+      { name:'牛肚', price:100 },
+      { name:'牛腱', price:100 },
+      { name:'牛筋', price:100 },
+      { name:'三寶拼盤', price:200 },
+      { name:'白飯', price:10 },
+      { name:'皮蛋滷蛋(1個)', price:15 },
+      { name:'冷凍水餃(1包)', price:280 },
+      { name:'冷凍牛肉湯', price:230 },
+    ],
+    dumpling: [
+      { name:'水餃(粒，最少10粒)', price:6, unit:'元/粒', minQty:10 },
+      { name:'牛湯餃 1份(10粒)', price:100 },
+      { name:'酸湯餃 1份(10粒)', price:100 },
+      { name:'加牛肉塊 一份2兩', price:100 },
+    ],
+  },
+
+  // ── 紅葉麵食館 ──────────────────────────────────────
+  hongye: {
+    noodles: [
+      { name:'牛肉麵(可選寬/手工)', hasSizes:true, prices:{大:100,小:90}, hasNoodleType:true },
+      { name:'牛肉湯麵', hasSizes:true, prices:{大:65,小:55} },
+      { name:'酸辣湯麵', hasSizes:true, prices:{大:65,小:55} },
+      { name:'餛飩麵', hasSizes:true, prices:{大:65,小:55} },
+      { name:'榨菜肉絲麵', hasSizes:true, prices:{大:60,小:45} },
+      { name:'肉燥麵(湯/乾)', hasSizes:true, prices:{大:55,小:45}, hasTaiwetDry:true },
+      { name:'板條(湯/乾)', hasSizes:true, prices:{大:55,小:45}, hasTaiwetDry:true },
+      { name:'肉燥米粉', hasSizes:true, prices:{大:55,小:45} },
+      { name:'米苔目', hasSizes:true, prices:{大:55,小:45} },
+      { name:'麻醬麵', hasSizes:true, prices:{大:55,小:45} },
+      { name:'炒麵', hasSizes:true, prices:{大:70,小:60} },
+      { name:'炒板條', hasSizes:true, prices:{大:70,小:60} },
+      { name:'炒米粉', hasSizes:true, prices:{大:70,小:60} },
+    ],
+    rice: [
+      { name:'肉燥飯', hasSizes:true, prices:{大:35,小:30} },
+      { name:'什錦炒飯', hasSizes:true, prices:{大:70,小:60} },
+      { name:'牛肉炒飯', hasSizes:true, prices:{大:80,小:70} },
+      { name:'豬肉燴飯', hasSizes:true, prices:{大:70,小:60} },
+      { name:'牛肉燴飯', hasSizes:true, prices:{大:80,小:70} },
+      { name:'沙茶牛肉(飯)', price:90 },
+      { name:'沙茶豬肉(飯)', price:80 },
+    ],
+    side: [
+      { name:'燙青菜-空心菜', hasSizes:true, prices:{大:50,小:30} },
+      { name:'燙青菜-地瓜葉', hasSizes:true, prices:{大:50,小:30} },
+      { name:'酸辣湯', price:30 },
+      { name:'貢丸湯', price:30 },
+      { name:'餛飩湯', price:30 },
+      { name:'豬肝湯', price:30 },
+      { name:'蛋花湯', price:30 },
+      { name:'皮蛋豆腐', price:30 },
+    ],
+    dumpling: [
+      { name:'水餃(份) 10粒', price:50 },
+      { name:'水餃(份) 15粒', price:75 },
+      { name:'酸辣湯餃', price:70 },
+      { name:'牛肉湯餃', price:70 },
+    ],
+  },
+
+  // ── 惜緣亭 ──────────────────────────────────────────
+  xiyuan: {
+    rice: [
+      { name:'双蛋炒飯', price:80, desc:'雙蛋炒飯｜含雞蛋、蔥花' },
+      { name:'五花香炒飯', price:90, desc:'五花油香｜含雞蛋、五花片、蔥花' },
+      { name:'蝦仁蛋炒飯', price:100, desc:'最愛蝦蝦｜含雞蛋、蝦仁、蔥花' },
+      { name:'芭達雅炒飯', price:110, desc:'泰式海鮮｜含雞蛋、蝦仁（辣）' },
+      { name:'排骨蛋炒飯', price:120, desc:'高CP炒飯｜含雞蛋、蔥花、米飯' },
+      { name:'砌層塔豬飯', price:120, desc:'客家打拋豬｜含豬肉末、長豆（辣）' },
+      { name:'蘭米客炒飯', price:120, desc:'冠軍客家味｜含雞蛋、豆乾、豬肉' },
+    ],
+    noodles: [
+      { name:'客家炒粄條', price:90, desc:'雙色粄條｜含蝦仁、透抽、豆...' },
+      { name:'五花香炒麵', price:90, desc:'古早麵食｜含五花肉、高麗...' },
+    ],
+    side: [
+      { name:'蛋花湯', price:35, desc:'含蛋花、蔥花、高湯' },
+      { name:'貢丸湯', price:35, desc:'含貢丸、芹菜、高湯' },
+      { name:'客家鹹湯圓/4顆', price:110, desc:'流量密碼大湯圓' },
+      { name:'閨娘。炊湯', price:150, desc:'小份1-2人，中份4-6人，大份8人以上' },
+      { name:'肉燥飯', price:40, desc:'老媽肉燥｜含豬肉、滷汁、米飯' },
+      { name:'燙青菜', price:40, desc:'自家田裡現採' },
+      { name:'荷包蛋', price:15, desc:'半熟太陽蛋，全熟請備註' },
+      { name:'香Q米飯', price:15 },
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+//  CART STATE
+// ═══════════════════════════════════════════════════════
+let cart = [];
+let currentStore = 'luyuan';
+
+// ═══════════════════════════════════════════════════════
+//  RENDER MENUS
+// ═══════════════════════════════════════════════════════
+function renderAll() {
+  for (const [store, cats] of Object.entries(MENUS)) {
+    for (const [cat, items] of Object.entries(cats)) {
+      const el = document.getElementById(`${store}-${cat}`);
+      if (!el) continue;
+      items.forEach((item, idx) => renderItem(el, item, store, cat, idx));
+    }
+  }
+}
+
+function renderItem(container, item, store, cat, idx) {
+  const key = `${store}__${cat}__${idx}`;
+  const div = document.createElement('div');
+  div.className = 'menu-item';
+  div.id = `item_${key}`;
+
+  // price display
+  let priceHtml = '';
+  if (item.hasSizes) {
+    const entries = Object.entries(item.prices);
+    priceHtml = entries.map(([s,p]) => `<span>$${p}<small style="font-size:0.7rem;font-weight:400">(${s})</small></span>`).join(' · ');
+  } else if (item.unit) {
+    priceHtml = `$${item.price} <span class="price-small">${item.unit}，最少${item.minQty||1}粒</span>`;
+  } else {
+    priceHtml = `$${item.price}`;
+  }
+
+  div.innerHTML = `
+    <div class="item-name">${item.name}</div>
+    ${item.desc ? `<div class="item-desc">${item.desc}</div>` : ''}
+    <div class="item-price">${priceHtml}</div>
+    <div class="item-options">
+      ${item.hasSizes ? `
+        <label>尺寸選擇</label>
+        <select class="sz-sel" onchange="updatePrice(this,'${key}')">
+          ${Object.entries(item.prices).map(([s,p]) => `<option value="${p}" data-size="${s}">${s} — $${p}</option>`).join('')}
+        </select>
+      ` : ''}
+      ${item.hasTaiwetDry ? `
+        <label>湯/乾選擇</label>
+        <select class="wd-sel">
+          <option value="湯麵">湯</option>
+          <option value="乾麵">乾</option>
+        </select>
+      ` : ''}
+      ${item.hasNoodleType ? `
+        <label>麵條種類</label>
+        <select class="nt-sel">
+          ${getNoodleOptions(store)}
+        </select>
+      ` : ''}
+      ${item.unit ? `
+        <label>數量（粒），最少${item.minQty||1}粒</label>
+        <input type="number" class="qty-input" value="${item.minQty||10}" min="${item.minQty||1}" step="1">
+      ` : `
+        <label>數量</label>
+        <input type="number" class="qty-input" value="1" min="1" max="20">
+      `}
+      <button class="add-btn" onclick="addToCart('${key}')">＋ 加入訂單</button>
+    </div>
+  `;
+
+  div.addEventListener('click', (e) => {
+    if (['SELECT','INPUT','BUTTON'].includes(e.target.tagName)) return;
+    toggleItem(div);
+  });
+
+  container.appendChild(div);
+}
+
+function getNoodleOptions(store) {
+  if (store === 'dafang') return ['寬麵','中麵','細麵','拉麵'].map(n=>`<option value="${n}">${n}</option>`).join('');
+  if (store === 'yipin' || store === 'yipin-shrimp') return ['白麵','細麵','拉麵','板條','米粉'].map(n=>`<option value="${n}">${n}</option>`).join('');
+  return ['拉麵','家常麵','粉絲'].map(n=>`<option value="${n}">${n}</option>`).join('');
+}
+
+function toggleItem(div) {
+  const wasSelected = div.classList.contains('selected');
+  document.querySelectorAll('.menu-item.selected').forEach(el => el.classList.remove('selected'));
+  if (!wasSelected) div.classList.add('selected');
+}
+
+function updatePrice(sel, key) {
+  // price displayed dynamically – no action needed, read on add
+}
+
+// ═══════════════════════════════════════════════════════
+//  CART OPERATIONS
+// ═══════════════════════════════════════════════════════
+function addToCart(key) {
+  const div = document.getElementById(`item_${key}`);
+  const parts = key.split('__');
+  const [store, cat, idx] = parts;
+  const item = MENUS[store][cat][parseInt(idx)];
+
+  // read options
+  let price = item.price || 0;
+  let optText = '';
+
+  // size
+  const szSel = div.querySelector('.sz-sel');
+  if (szSel) {
+    price = parseInt(szSel.value);
+    const sizeLabel = szSel.options[szSel.selectedIndex].dataset.size;
+    optText += sizeLabel + ' ';
+  }
+
+  // wet/dry
+  const wdSel = div.querySelector('.wd-sel');
+  if (wdSel) optText += wdSel.value + ' ';
+
+  // noodle type
+  const ntSel = div.querySelector('.nt-sel');
+  if (ntSel) optText += ntSel.value + ' ';
+
+  // qty
+  const qtyInput = div.querySelector('.qty-input');
+  let qty = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+  if (qty < 1) qty = 1;
+
+  // per-unit items
+  if (item.unit) {
+    price = price * qty;
+    optText += `${qty}粒`;
+    qty = 1;
+  }
+
+  const storeName = {
+    luyuan:'綠苑麵食館', yipin:'壹品麵食館',
+    dafang:'大方牛肉麵店', hongye:'紅葉麵食館', xiyuan:'惜緣亭'
+  }[store];
+
+  cart.push({
+    id: Date.now() + Math.random(),
+    store, storeName,
+    name: item.name,
+    options: optText.trim(),
+    price, qty
+  });
+
+  renderCart();
+  // flash
+  div.classList.remove('selected');
+  div.style.borderColor = 'var(--primary)';
+  div.style.background = 'var(--primary-pale)';
+  setTimeout(() => { div.style.borderColor=''; div.style.background=''; }, 800);
+}
+
+function removeFromCart(id) {
+  cart = cart.filter(c => c.id !== id);
+  renderCart();
+}
+
+function renderCart() {
+  const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
+  const count = cart.reduce((s,c) => s + c.qty, 0);
+
+  // update badge
+  document.getElementById('cartCount').textContent = cart.length;
+  document.getElementById('mCartCount').textContent = cart.length;
+  document.getElementById('mCartAmt').textContent = total;
+
+  const renderItems = (container) => {
+    if (cart.length === 0) {
+      container.innerHTML = '<div class="empty-msg">🛍️ 尚未加入任何品項</div>';
+    } else {
+      container.innerHTML = cart.map(c => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${c.name}</div>
+            <div class="cart-item-sub">${c.storeName}${c.options?' · '+c.options:''} × ${c.qty}</div>
+          </div>
+          <div class="cart-item-price">$${c.price * c.qty}</div>
+          <button class="cart-item-del" onclick="removeFromCart(${c.id})">✕</button>
+        </div>
+      `).join('');
+    }
+  };
+
+  renderItems(document.getElementById('cartItems'));
+  renderItems(document.getElementById('m_cartItems'));
+
+  // total
+  ['cartTotal','m_cartTotal'].forEach(id => {
+    document.getElementById(id).style.display = cart.length ? 'flex' : 'none';
+  });
+  document.getElementById('totalAmt').textContent = '$' + total;
+  document.getElementById('m_totalAmt').textContent = '$' + total;
+
+  // submit btn
+  const hasUser = document.getElementById('userName').value.trim() || document.getElementById('m_userName').value.trim();
+  const hasDept = document.getElementById('userDept').value.trim() || document.getElementById('m_userDept').value.trim();
+  const canSubmit = cart.length > 0;
+  document.getElementById('submitBtn').disabled = !canSubmit;
+  document.getElementById('m_submitBtn').disabled = !canSubmit;
+}
+
+// ═══════════════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════════════
+function switchStore(store) {
+  currentStore = store;
+  document.querySelectorAll('.menu-section').forEach(el => el.classList.remove('active'));
+  document.getElementById('store-' + store).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + store).classList.add('active');
+}
+
+function openCart() { /* desktop: always visible */ }
+function openMobileCart() { document.getElementById('mobileCartOverlay').classList.add('open'); }
+function closeMobileCart() { document.getElementById('mobileCartOverlay').classList.remove('open'); }
+
+// sync mobile ↔ desktop form fields
+['userName','userDept','userPhone','userNote'].forEach(field => {
+  const desktop = document.getElementById(field);
+  const mobile = document.getElementById('m_' + field);
+  if (desktop && mobile) {
+    desktop.addEventListener('input', () => { mobile.value = desktop.value; renderCart(); });
+    mobile.addEventListener('input', () => { desktop.value = mobile.value; renderCart(); });
+  }
+});
+
+// ── CONFIRM MODAL ──
+function openConfirm() {
+  // sync info
+  const name = document.getElementById('userName').value.trim() || document.getElementById('m_userName').value.trim();
+  const dept = document.getElementById('userDept').value.trim() || document.getElementById('m_userDept').value.trim();
+  if (!name || !dept) { alert('請填寫姓名與部門/班級'); return; }
+  if (cart.length === 0) { alert('請至少加入一項餐點'); return; }
+
+  const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
+  // group by store
+  const byStore = {};
+  cart.forEach(c => {
+    if (!byStore[c.storeName]) byStore[c.storeName] = [];
+    byStore[c.storeName].push(c);
+  });
+
+  let html = `
+    <div class="row"><span>訂購人</span><strong>${name}</strong></div>
+    <div class="row"><span>部門/班級</span><strong>${dept}</strong></div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:8px 0">
+  `;
+  for (const [s, items] of Object.entries(byStore)) {
+    html += `<div class="row" style="font-weight:700;color:var(--primary-light)">${s}</div>`;
+    items.forEach(c => {
+      html += `<div class="row" style="padding-left:8px">
+        <span>${c.name}${c.options?' ('+c.options+')':''} ×${c.qty}</span>
+        <span>$${c.price*c.qty}</span>
+      </div>`;
+    });
+  }
+  html += `<div class="row total"><span>合計</span><span>$${total}</span></div>`;
+  document.getElementById('orderSummaryDiv').innerHTML = html;
+  document.getElementById('confirmModal').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBMIT ORDER → Google Apps Script
+// ═══════════════════════════════════════════════════════
+function submitOrder() {
+  closeConfirm();
+  closeMobileCart();
+
+  const name = document.getElementById('userName').value.trim() || document.getElementById('m_userName').value.trim();
+  const dept = document.getElementById('userDept').value.trim() || document.getElementById('m_userDept').value.trim();
+  const phone = document.getElementById('userPhone').value.trim() || document.getElementById('m_userPhone').value.trim();
+  const note = document.getElementById('userNote').value.trim() || document.getElementById('m_userNote').value.trim();
+  const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
+  const ts = new Date().toLocaleString('zh-TW', { timeZone:'Asia/Taipei' });
+
+  const payload = {
+    timestamp: ts,
+    userName: name,
+    userDept: dept,
+    userPhone: phone,
+    userNote: note,
+    orderTotal: total,
+    notifyEmails: 'x00001548@meiho.edu.tw,wumas67@gmail.com',
+    itemsJson: JSON.stringify(cart.map(c => ({
+      storeName: c.storeName,
+      dishName: c.name,
+      options: c.options,
+      quantity: c.qty,
+      unitPrice: c.price,
+      subtotal: c.price * c.qty
+    })))
+  };
+
+  // send via hidden form + iframe
+  const iframe = document.createElement('iframe');
+  iframe.name = 'submit_frame';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = GAS_URL;
+  form.target = 'submit_frame';
+  form.style.display = 'none';
+
+  for (const [k,v] of Object.entries(payload)) {
+    const inp = document.createElement('input');
+    inp.type = 'hidden'; inp.name = k; inp.value = v;
+    form.appendChild(inp);
+  }
+  document.body.appendChild(form);
+  form.submit();
+
+  // reset
+  setTimeout(() => {
+    cart = [];
+    renderCart();
+    ['userName','userDept','userPhone','userNote','m_userName','m_userDept','m_userPhone','m_userNote']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+    showSuccess();
+    form.remove(); iframe.remove();
+  }, 600);
+}
+
+function showSuccess() {
+  const b = document.getElementById('successBanner');
+  b.style.display = 'block';
+  setTimeout(() => { b.style.display = 'none'; }, 4000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+renderAll();
+renderCart();
+</script>
+</body>
+</html>
