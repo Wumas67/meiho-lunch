@@ -1186,32 +1186,35 @@ function submitOrder() {
   const total = cart.reduce((s,c) => s + c.price * c.qty, 0);
   const ts    = new Date().toLocaleString('zh-TW', { timeZone:'Asia/Taipei' });
 
-  // ── 組建 FormData（GAS doPost 用 e.parameter 讀取）────
-  const fd = new FormData();
-  fd.append('timestamp',    ts);
-  fd.append('userName',     name);
-  fd.append('userDept',     dept);
-  fd.append('userPhone',    phone);
-  fd.append('userNote',     note);
-  fd.append('orderTotal',   total);
-  fd.append('notifyEmails', 'x00001548@meiho.edu.tw,wumas67@gmail.com');
-  fd.append('itemsJson', JSON.stringify(cart.map(c => ({
+  const itemsJson = JSON.stringify(cart.map(c => ({
     storeName: c.storeName,
     dishName:  c.name,
     options:   c.options,
     quantity:  c.qty,
     unitPrice: c.price,
     subtotal:  c.price * c.qty
-  }))));
+  })));
 
-  // ── 用 no-cors fetch 送出（GAS 不支援 CORS，但資料仍送達）
+  // ★ 重點：用 URLSearchParams 送出 application/x-www-form-urlencoded
+  //   GAS 的 e.parameter 只能讀這種格式，FormData(multipart) 會讓 e.parameter 是空的
+  const params = new URLSearchParams();
+  params.append('timestamp',    ts);
+  params.append('userName',     name);
+  params.append('userDept',     dept);
+  params.append('userPhone',    phone || '');
+  params.append('userNote',     note  || '');
+  params.append('orderTotal',   String(total));
+  params.append('notifyEmails', 'x00001548@meiho.edu.tw,wumas67@gmail.com');
+  params.append('itemsJson',    itemsJson);
+
   fetch(GAS_URL, {
-    method: 'POST',
-    mode:   'no-cors',   // ← 關鍵：避免瀏覽器因 CORS 攔截
-    body:   fd
-  }).catch(err => console.log('fetch error (可忽略):', err));
+    method:  'POST',
+    mode:    'no-cors',          // GAS 不回 CORS header，必須 no-cors
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body:    params.toString()   // ← 純字串，GAS 能正確解析成 e.parameter
+  }).catch(err => console.log('[送出] 網路錯誤（可忽略）:', err));
 
-  // 立即 reset UI（no-cors 無法等 response，視為已送出）
+  // reset UI（no-cors 無法等 response，視為已送出）
   cart = [];
   renderCart();
   ['userName','userDept','userPhone','userNote',
